@@ -1,0 +1,14 @@
+{
+	"git" : [
+		"add new accordion component",
+		"in-card notificat-ions",
+		"Updating checkbox alignment",
+		"update heading and text components",
+		"updated the tokens for the card",
+		"adding radio button story",
+		"new version of storybook"
+	],
+	"testing" : [
+		"in-card notificat-ions"
+	]
+}
