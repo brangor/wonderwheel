@@ -1,3 +1,7 @@
+const MAX_SPEED = 20;
+const MIN_SPEED = -20;
+const RESISTANCE = 8;
+
 document.addEventListener('DOMContentLoaded', () => {
   let startX, startY, currentX, currentY;
   let startTime, currentAngle = 0;
@@ -5,67 +9,119 @@ document.addEventListener('DOMContentLoaded', () => {
   let spinning = false;
 
   // Set a resistance factor to simulate weight
-  const resistanceFactor = 1.5; // Higher values make it feel heavier
-  const maxVelocity = 10; // Limit maximum velocity
+  const resistanceFactor = RESISTANCE; // Higher values make it feel heavier
+  const maxVelocity = MAX_SPEED; // Limit maximum velocity
 
   const canvas = document.getElementById('wheelCanvas');
   const ctx = canvas.getContext('2d');
   const speedometerElement = document.getElementById('speedometer');
-  const tickSound = new Audio('tick.mp3');
+  const winningPieceElement = document.getElementById('winningPiece');
+  const tickSound = new Audio('tock.mp3');
 
-  const wheelData = [
-    'GIFT', '$ 700', 'ONE MILLION', '$ 600', '$ 550', '$ 500', '$ 600',
-    'BANKRUPT', '$ 650', 'FREE PLAY', '❓ 000', 'LOSE A TURN', '$ 800',
-    'PRIZE', '$ 650', '$ 500', '$ 900', 'BANKRUPT', '$ 3500', 'WILD',
-    '$ 900', '$ 700', '❓ 000', '$ 650', '$ 2500', '$ 5000', 'SURPRISE',
-    'POWER', 'JACKPOT', 'V A U L T', 'EXPRESS 000'
-  ];
+  let lastSegmentIndex = null;
 
   function playTick() {
-    tickSound.currentTime = 0;
-    tickSound.play();
+    const numberOfSegments = wheelData.length;
+    const anglePerSegment = 2 * Math.PI / numberOfSegments;
+    const currentSegmentIndex = Math.floor((currentAngle % (2 * Math.PI)) / anglePerSegment);
+
+    if (currentSegmentIndex !== lastSegmentIndex) {
+      tickSound.currentTime = 0;
+      tickSound.play();
+      lastSegmentIndex = currentSegmentIndex;
+    }
   }
 
   function updateSpeedometer() {
     speedometerElement.textContent = `Speed: ${velocity.toFixed(2)}`;
   }
 
-  function drawWheel() {
-    const numberOfSegments = wheelData.length;
-    const anglePerSegment = 2 * Math.PI / numberOfSegments;
-    const radius = canvas.width / 2;
+    const wheelData = [
+      { text: 'GIFT', color: '#FF0000' },
+      { text: '$700', color: '#00FF00' },
+      { text: 'ONE MILLION', color: '#0000FF' },
+      { text: '$600', color: '#FFFF00' },
+      { text: '$550', color: '#FF00FF' },
+      { text: '$500', color: '#00FFFF' },
+      { text: '$600', color: '#FFA500' },
+      { text: 'BANKRUPT', color: '#000000' },
+      { text: '$650', color: '#008000' },
+      { text: 'FREE PLAY', color: '#000080' },
+      { text: '❓', color: '#808000' },
+      { text: 'LOSE A TURN', color: '#800000' },
+      { text: '$800', color: '#008080' },
+      { text: 'PRIZE', color: '#C0C0C0' },
+      { text: '$650', color: '#FF4500' },
+      { text: '$500', color: '#2E8B57' },
+      { text: '$900', color: '#4682B4' },
+      { text: 'BANKRUPT', color: '#000000' },
+      { text: '$3500', color: '#9ACD32' },
+      { text: 'WILD', color: '#FF1493' },
+      { text: '$900', color: '#1E90FF' },
+      { text: '$700', color: '#FFD700' },
+      { text: '❓', color: '#ADFF2F' },
+      { text: '$650', color: '#FF69B4' },
+      { text: '$2500', color: '#CD5C5C' },
+      { text: '$5000', color: '#4B0082' },
+      { text: 'SURPRISE', color: '#7FFF00' },
+      { text: 'POWER', color: '#DC143C' },
+      { text: 'JACKPOT', color: '#00CED1' },
+      { text: 'VAULT', color: '#9400D3' },
+      { text: 'EXPRESS 000', color: '#FF6347' }
+    ];
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    ctx.translate(radius, radius);
-    ctx.rotate(currentAngle);
+    function drawWheel() {
+      const numberOfSegments = wheelData.length;
+      const anglePerSegment = 2 * Math.PI / numberOfSegments;
+      const radius = canvas.width / 2;
 
-    wheelData.forEach((item, index) => {
-      const angle = index * anglePerSegment;
-
-      // Draw segment
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, radius, angle, angle + anglePerSegment);
-      ctx.closePath();
-      ctx.fillStyle = index % 2 === 0 ? '#ffcc00' : '#ffdd00';
-      ctx.fill();
-      ctx.stroke();
-
-      // Draw text
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
-      ctx.rotate(angle + anglePerSegment / 2);
-      ctx.translate(radius * 0.7, 0);
-      ctx.rotate(Math.PI / 2);
-      ctx.fillStyle = '#000';
-      ctx.fillText(item, 0, 0);
-      ctx.restore();
-    });
+      ctx.translate(radius, radius);
+      ctx.rotate(currentAngle);
 
-    ctx.restore();
-  }
+      wheelData.forEach((item, index) => {
+        const angle = index * anglePerSegment;
+
+        // Draw segment
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, angle, angle + anglePerSegment);
+        ctx.closePath();
+        ctx.fillStyle = item.color;
+        ctx.fill();
+        ctx.stroke();
+
+        // Draw text
+        ctx.save();
+        ctx.rotate(angle + anglePerSegment / 3);
+        ctx.translate(radius * 0.35, 0); // Move text closer to the midpoint of the arc slice
+        ctx.rotate(Math.PI / 2);
+
+        const text = item.text.split('').reverse().join(''); // Reverse the text for correct orientation
+        ctx.fillStyle = '#000';
+        ctx.font = '16px Arial';
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#FFD700'; // Gold color for drop shadow
+        ctx.shadowColor = '#FFD700';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+
+        for (let i = 0; i < text.length; i++) {
+          ctx.strokeText(text[i], 0, -i * 14); // Draw the drop shadow
+          ctx.fillText(text[i], 0, -i * 14); // Draw the text
+        }
+
+        ctx.restore();
+      });
+
+      ctx.restore();
+    }
 
   function startDrag(event) {
+    if (spinning) return; // Prevent starting a new drag if the wheel is already spinning
+
     event.preventDefault();
     startX = event.clientX || event.touches[0].clientX;
     startY = event.clientY || event.touches[0].clientY;
@@ -81,15 +137,32 @@ document.addEventListener('DOMContentLoaded', () => {
     currentX = event.clientX || event.touches[0].clientX;
     currentY = event.clientY || event.touches[0].clientY;
 
-    let deltaX = currentX - startX;
-    let deltaY = currentY - startY;
-    let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    // Calculate the center of the wheel
+    const rect = canvas.getBoundingClientRect();
+    const centerX = rect.left + canvas.width / 2;
+    const centerY = rect.top + canvas.height / 2;
 
-    // Apply resistance at the start to simulate weight
-    let resistance = Math.min(distance / resistanceFactor, maxVelocity);
+    // Calculate the angle from the center of the wheel to the current position
+    let deltaX = currentX - centerX;
+    let deltaY = currentY - centerY;
 
-    // Slowly build up momentum as the user drags more
-    velocity = Math.pow(resistance, 1.5); // Non-linear relationship for more realism
+    // Calculate the drag distance
+    let dragDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    // Calculate the drag duration
+    let dragDuration = (new Date().getTime() - startTime) / 1000; // in seconds
+
+    // Calculate the drag angle
+    let dragAngle = Math.atan2(deltaY, deltaX);
+
+    // Determine the direction of the drag
+    let direction = Math.sign(Math.sin(dragAngle));
+
+    // Calculate the velocity based on drag distance and duration
+    velocity = (dragDistance / dragDuration) * direction * 0.01; // Adjust the factor as needed
+
+    // Limit the velocity to the maximum allowed speed
+    velocity = Math.min(Math.max(velocity, MIN_SPEED), MAX_SPEED);
 
     // Rotate the wheel according to the velocity
     currentAngle += velocity * 0.01;
@@ -107,6 +180,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Spin the wheel with the captured velocity
     spinWithVelocity();
+  }
+
+  function resizeCanvas() {
+    const container = document.querySelector('.wheel-container');
+    const size = container.offsetWidth;
+    canvas.width = size;
+    canvas.height = size;
+    drawWheel();
   }
 
   function spinWithVelocity() {
@@ -127,11 +208,26 @@ document.addEventListener('DOMContentLoaded', () => {
         drawWheel();
         updateSpeedometer();
 
-        if (velocity < 0.01) {
+        // Check if the velocity is too low to cross a segment
+        const numberOfSegments = wheelData.length;
+        const anglePerSegment = 2 * Math.PI / numberOfSegments;
+        const currentSegmentIndex = Math.floor((currentAngle % (2 * Math.PI)) / anglePerSegment);
+        const nextSegmentIndex = Math.floor(((currentAngle + velocity * 0.01) % (2 * Math.PI)) / anglePerSegment);
+
+        if (currentSegmentIndex !== nextSegmentIndex && Math.abs(velocity) < 2) {
+          velocity = -velocity * 0.5; // Reverse direction with reduced speed
+        }
+
+        if (Math.abs(velocity) < 0.01) {
           clearInterval(spinInterval);
           spinning = false;
           velocity = 0;
           updateSpeedometer();
+
+          //// Determine the winning piece
+          //const winningIndex = Math.floor((currentAngle % (2 * Math.PI)) / anglePerSegment);
+          //const winningPiece = wheelData[winningIndex].text;
+          //winningPieceElement.textContent = winningPiece;
         }
       }, 16); // Approximately 60 FPS
     }
@@ -151,10 +247,13 @@ document.addEventListener('DOMContentLoaded', () => {
       updateSpeedometer();
     },
     onComplete: () => {
+      let segmentAngle = 2 * Math.PI / wheelData.length;
+      let targetAngle = Math.round(currentAngle / segmentAngle) * segmentAngle;
+
       gsap.to({ angle: currentAngle }, {
-        angle: totalRotation % (2 * Math.PI),
+        angle: targetAngle,
         duration: 1,
-        ease: "elastic.out(1, 0.3)",
+        ease: "elastic.out(1.5, 0.5)",
         onUpdate: function() {
           currentAngle = this.targets()[0].angle;
           drawWheel();
