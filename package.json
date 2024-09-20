@@ -1,11 +1,12 @@
 {
   "name": "the-spinning-thing-of-treasures",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "puzzles.ts",
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/index.ts"
+    "puzzles": "ts-node src/puzzles/puzzles.ts",
+    "wheel": "ts-node src/wheel/wheel.js"
   },
   "keywords": [],
   "author": "",

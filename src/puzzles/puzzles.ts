@@ -4,6 +4,8 @@ const _ = require('lodash');
 
 const MAX_LINE_WIDTH = 11;
 const NUMBER_OF_LINES = 3;
+const TOTAL_LINES = 6;
+
 const WORD_LIST_PATH = path.join(__dirname, 'DLS.json');
 const CATEGORIES_LIST = ['git'] as const;
 type CATEGORIES = typeof CATEGORIES_LIST[number];
@@ -73,16 +75,25 @@ function verticalPadding(lines: Array<string>, numberOfLines: number): Array<str
 }
 
 function horizontalPadding(line: string, maxWidth: number): PuzzleLine {
-	line = line.replace(/\s+/g, getRandomString(1));
-	const padding = maxWidth - line.length;
-	const leadingPaddingSize = Math.floor(padding / 2);
-	const trailingPaddingSize = padding - leadingPaddingSize;
+    console.log(`Original line: "${line}"`);
+    line = line.replace(/\s+/g, getRandomString(1));
+    console.log(`Line after replacing spaces: "${line}"`);
 
-	const clueLine: string[] = [getRandomString(leadingPaddingSize), line, getRandomString(trailingPaddingSize)].join('').split('');
+    const padding = maxWidth - line.length;
+    console.log(`Padding needed: ${padding}`);
+
+    const leadingPaddingSize = Math.floor(padding / 2);
+    const trailingPaddingSize = padding - leadingPaddingSize;
+    console.log(`Leading padding size: ${leadingPaddingSize}, Trailing padding size: ${trailingPaddingSize}`);
+
+    const clueLine: string[] = [getRandomString(leadingPaddingSize), line, getRandomString(trailingPaddingSize)].join('').split('');
+    console.log(`Final clueLine: "${clueLine.join('')}", Length: ${clueLine.length}`);
 
     const puzzleLine: PuzzleLine = {
         cells: clueLine,
-        solutionCells: [_.times(leadingPaddingSize, _.constant(false)).concat(_.times(line.length, _.constant(true))).concat(_.times(trailingPaddingSize, _.constant(false)))]
+        solutionCells: _.times(leadingPaddingSize, _.constant(false))
+            .concat(_.times(line.length, _.constant(true)))
+            .concat(_.times(trailingPaddingSize, _.constant(false)))
     };
 
     return puzzleLine;
@@ -92,8 +103,14 @@ function createTableRows(lines: PuzzleLine[]): string {
 	const rows: Array<string> = [];
 	lines.forEach((line) => {
 		rows.push(`<tr>`);
-		line.cells.forEach((char, index) => rows.push(`<td class=${line.solutionCells[index] ? 'answerCell' : ''}>${char}</td>`));
+        const row = line.cells;
+        const answerKey = line.solutionCells;
+		row.forEach((char, index) => rows.push(`<td class=${answerKey[index] ? 'answerCell' : ''}>${char}</td>`));
 		rows.push(`</tr>`);
+
+        rows.push(`<tr>`);
+        getRandomString(MAX_LINE_WIDTH).split('').forEach((char) => rows.push(`<td>${char}</td>`));
+        rows.push(`</tr>`);
 	});
 
 	return rows.join('\n');
@@ -210,22 +227,31 @@ const htmlContent = `
             font-family: Monospace;
             text-align: center;
         }
+        td {
+            height: 90px;
+            font-size: 25px;
+            border-bottom:10px solid white;
+        }
         th {
             background-color: #f2f2f2;
+        }
+        .answerCell {
+            background-color: #f2f2f2;
+            border-bottom: 10px solid black;
         }
     </style>
 </head>
 <body>
     <table>
-        <caption>${[randomSolution.category.toUpperCase(),randomSolution.id].join(' ')}</caption>
+        <caption></caption>
         <tr>
             <th></th>
             <th></th>
             <th></th>
             <th></th>
             <th></th>
-            <th></th>
-            <th></th>
+            <th>${randomSolution.category.toUpperCase()[0]}</th>
+            <th>${randomSolution.id}</th>
             <th></th>
             <th></th>
             <th></th>
