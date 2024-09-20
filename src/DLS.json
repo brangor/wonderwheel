@@ -10,5 +10,20 @@
 	],
 	"testing" : [
 		"in-card notificat-ions"
+	],
+	"people" : [
+		"dushan pejic",
+		"tim trainor",
+		"natalie sharp",
+		"jingbo feng",
+		"philip george"
+	],
+	"components": [
+		"accordion",
+		"checkbox",
+		"heading",
+		"text",
+		"card",
+		"radio button"
 	]
 }

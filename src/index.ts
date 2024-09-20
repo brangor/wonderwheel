@@ -3,7 +3,7 @@ const path = require('path');
 const _ = require('lodash');
 
 const MAX_LINE_WIDTH = 11;
-const NUMBER_OF_LINES = 6;
+const NUMBER_OF_LINES = 3;
 const WORD_LIST_PATH = path.join(__dirname, 'DLS.json');
 const CATEGORIES_LIST = ['git'] as const;
 type CATEGORIES = typeof CATEGORIES_LIST[number];
@@ -20,6 +20,11 @@ type FileSolutionType = {
     id: number,
     solution: string
 };
+
+type PuzzleLine = {
+    cells: string[],
+    solutionCells: boolean[]
+}
 
 function readRandomInputFromFile(filePath: string, category: CATEGORIES): FileSolutionType {
     try {
@@ -67,20 +72,27 @@ function verticalPadding(lines: Array<string>, numberOfLines: number): Array<str
 	return _.times(topPadding, _.constant('')).concat(lines).concat(_.times(bottomPadding, _.constant('')));
 }
 
-function horizontalPadding(line: string, maxWidth: number): string {
+function horizontalPadding(line: string, maxWidth: number): PuzzleLine {
 	line = line.replace(/\s+/g, getRandomString(1));
 	const padding = maxWidth - line.length;
-	const leadingPadding = getRandomString(Math.floor(padding / 2));
-	const trailingPadding = getRandomString(padding - leadingPadding.length);
-	return [leadingPadding, line, trailingPadding].join('');
+	const leadingPaddingSize = Math.floor(padding / 2);
+	const trailingPaddingSize = padding - leadingPaddingSize;
+
+	const clueLine: string[] = [getRandomString(leadingPaddingSize), line, getRandomString(trailingPaddingSize)].join('').split('');
+
+    const puzzleLine: PuzzleLine = {
+        cells: clueLine,
+        solutionCells: [_.times(leadingPaddingSize, _.constant(false)).concat(_.times(line.length, _.constant(true))).concat(_.times(trailingPaddingSize, _.constant(false)))]
+    };
+
+    return puzzleLine;
 }
 
-function createTableRows(lines: Array<string>): string {
+function createTableRows(lines: PuzzleLine[]): string {
 	const rows: Array<string> = [];
 	lines.forEach((line) => {
 		rows.push(`<tr>`);
-		const content = String(horizontalPadding(line, MAX_LINE_WIDTH));
-		content.split('').forEach((char) => rows.push(`<td>${char}</td>`));
+		line.cells.forEach((char, index) => rows.push(`<td class=${line.solutionCells[index] ? 'answerCell' : ''}>${char}</td>`));
 		rows.push(`</tr>`);
 	});
 
@@ -94,24 +106,44 @@ function cleanString(str: string | undefined): string {
     return str.replace(/[^a-zA-Z]/g, ' ').trim();
 }
 
-function validateSolution(solution: string): boolean {
+function validateInputString(str: string): boolean {
+    const words = str.split(' ');
+    return words.every((word) => word.length <= MAX_LINE_WIDTH) && str.length <= MAX_LINE_WIDTH * NUMBER_OF_LINES + words.length - 1;
+}
+
+function validateSolution(solution: PuzzleLine[]): boolean {
     if (solution === undefined) {
         console.error('Failed to generate a valid solution.');
         process.exit(1);
     }
 
     let passesValidation = true;
-    if (solution.replace(/\s/g, '').length > MAX_LINE_WIDTH * NUMBER_OF_LINES) {
-        passesValidation = false;
-
-        console.error('Solution is too long to be displayed in the table:\n', solution);
-        process.exit(1);
-    }
-    const words = solution.toUpperCase().split(' ');
-    words.forEach((word: string) => {
-        if (word.length > MAX_LINE_WIDTH) {
-            console.error(`${word}\n is too long to be displayed in the table.`);
+    solution.forEach((line) => {
+        if (line.cells.length !== line.solutionCells.length) {
             passesValidation = false;
+            console.error('Solution and cells length do not match.');
+            process.exit(1);
+        }
+
+        line.solutionCells.forEach((cell: boolean) => {
+            if (typeof cell !== 'boolean') {
+                passesValidation = false;
+                console.error('Solution cells should be booleans.');
+                process.exit(1);
+            }
+        });
+
+        line.cells.forEach((cell: string) => {
+            if (typeof cell !== 'string') {
+                passesValidation = false;
+                console.error('Solution cells should be strings.');
+                process.exit(1);
+            }
+        });
+
+        if (line.cells.length > MAX_LINE_WIDTH - 1) {
+            passesValidation = false;
+            console.error('Solution cells longer than valid solution size.');
             process.exit(1);
         }
     });
@@ -124,7 +156,7 @@ let randomSolution: FileSolutionType = readRandomInputFromFile(WORD_LIST_PATH, c
 
 let maxAttempts = 10;
 while(!validInput) {
-    validInput = validateSolution(randomSolution.solution);
+    validInput = validateInputString(randomSolution.solution);
     if (validInput) {
         break;
     } else {
@@ -137,7 +169,7 @@ while(!validInput) {
     }
 }
 
-const words = randomSolution!.solution.toUpperCase().split(' ');
+const words = randomSolution.solution.toUpperCase().split(' ');
 
 let lines: Array<string> = [];
 
@@ -150,7 +182,6 @@ for (let word = 0; word < words.length; word++) {
         currentLine++;
     }
 
-
     if (!lines[currentLine]) {
         lines[currentLine] = words[word].toUpperCase();
     } else {
@@ -159,14 +190,7 @@ for (let word = 0; word < words.length; word++) {
 }
 
 lines = verticalPadding(lines, NUMBER_OF_LINES);
-lines.forEach((line, index) => lines[index] = horizontalPadding(line, MAX_LINE_WIDTH));
-
-if (!validateSolution(lines.join(' '))) {
-    console.error('Failed to generate a valid solution.');
-    process.exit(1);
-} else {
-    console.log('Solution: ', randomSolution.solution);
-}
+const formattedLines: PuzzleLine[] = lines.map((line) => horizontalPadding(line, MAX_LINE_WIDTH));
 
 const htmlContent = `
 <!DOCTYPE html>
@@ -207,7 +231,7 @@ const htmlContent = `
             <th></th>
             <th></th>
         </tr>
-        ${createTableRows(lines)}
+        ${createTableRows(formattedLines)}
     </table>
 </body>
 </html>
