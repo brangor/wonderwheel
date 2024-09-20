@@ -1,0 +1,37 @@
+body {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  gap: 20px;
+}
+
+.wheel-container {
+  position: relative;
+  max-width: 500px;
+	aspect-ratio: 1;
+  margin: 0 auto;
+  border: 5px solid #000;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.pointer {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 30px solid red;
+}
+
+#speedometer {
+  font-size: 24px;
+}
+
+#result {
+	font-size: 24px;
+	margin-top: 20px;
+}
