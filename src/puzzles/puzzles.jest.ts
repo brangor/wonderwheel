@@ -1,4 +1,4 @@
-import { validateSolution } from './index';
+import { validateSolution } from './puzzles';
 
 describe('validateSolution', () => {
     it('should return true for a valid solution', () => {
