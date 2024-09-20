@@ -1,5 +1,6 @@
-import { validateSolution } from './puzzles';
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const puzzles_1 = require("./puzzles");
 describe('validateSolution', () => {
     it('should return true for a valid solution', () => {
         const validSolution = [
@@ -12,9 +13,8 @@ describe('validateSolution', () => {
                 solutionCells: [true, true, true, true, true]
             }
         ];
-        expect(validateSolution(validSolution)).toBe(true);
+        expect((0, puzzles_1.validateSolution)(validSolution)).toBe(true);
     });
-
     it('should return false for solution with mismatched cells and solutionCells lengths', () => {
         const invalidSolution = [
             {
@@ -22,29 +22,26 @@ describe('validateSolution', () => {
                 solutionCells: [true, true, true, true]
             }
         ];
-        expect(validateSolution(invalidSolution)).toBe(false);
+        expect((0, puzzles_1.validateSolution)(invalidSolution)).toBe(false);
     });
-
     it('should return false for solution with non-boolean values in solutionCells', () => {
         const invalidSolution = [
             {
                 cells: ['A', 'B', 'C', 'D', 'E'],
-                solutionCells: [true, true, true, true, 'true' as any]
+                solutionCells: [true, true, true, true, 'true']
             }
         ];
-        expect(validateSolution(invalidSolution)).toBe(false);
+        expect((0, puzzles_1.validateSolution)(invalidSolution)).toBe(false);
     });
-
     it('should return false for solution with non-string values in cells', () => {
         const invalidSolution = [
             {
-                cells: ['A', 'B', 'C', 'D', 1 as any],
+                cells: ['A', 'B', 'C', 'D', 1],
                 solutionCells: [true, true, true, true, true]
             }
         ];
-        expect(validateSolution(invalidSolution)).toBe(false);
+        expect((0, puzzles_1.validateSolution)(invalidSolution)).toBe(false);
     });
-
     it('should return false for solution with cells length exceeding MAX_LINE_WIDTH', () => {
         const invalidSolution = [
             {
@@ -52,6 +49,6 @@ describe('validateSolution', () => {
                 solutionCells: [true, true, true, true, true, true, true, true, true, true, true]
             }
         ];
-        expect(validateSolution(invalidSolution)).toBe(false);
+        expect((0, puzzles_1.validateSolution)(invalidSolution)).toBe(false);
     });
 });
