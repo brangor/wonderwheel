@@ -1,37 +1,33 @@
+/* Ensure html and body take up the full height */
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+/* Center the wheel container */
 body {
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: center;
-  gap: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Style the wheel container */
 .wheel-container {
-  position: relative;
-  max-width: 500px;
-	aspect-ratio: 1;
-  margin: 0 auto;
-  border: 5px solid #000;
-  border-radius: 50%;
-  overflow: hidden;
+    position: relative;
+    width: 500px; /* Adjust as needed */
+    height: 500px; /* Adjust as needed */
 }
 
+/* Style the pointer */
 .pointer {
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 30px solid red;
-}
-
-#speedometer {
-  font-size: 24px;
-}
-
-#result {
-	font-size: 24px;
-	margin-top: 20px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 20px solid red; /* Adjust as needed */
 }
